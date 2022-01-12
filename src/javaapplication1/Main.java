@@ -43,6 +43,100 @@ public class Main {
         });
     }
      
+     public static String getNombre(String numero){
+         String nombre= "";  
+           try {
+              
+         List<StreamKeyItem> listItems = (List<StreamKeyItem>) commandManager.invoke(CommandElt.LISTSTREAMITEMS, "individuos");
+          for(int i= 0; i<listItems.size(); i++){
+            List<String> list = listItems.get(i).getKeys();
+            if(list.contains(numero)){
+              LinkedTreeMap tree = (LinkedTreeMap) listItems.get(i).getData();
+              LinkedTreeMap tree2= (LinkedTreeMap) tree.get("json");   
+              nombre= (String) tree2.get("nombre");
+               return nombre;
+            }
+          }
+           } catch (MultichainException e) {
+            e.printStackTrace();
+            
+        }
+           return nombre;
+    
+     }
+     
+     public static List<List<String>> cargarAntecedentesPorDelito(String numeroDelito){
+         String j= "0";     
+         if(numeroDelito=="Leve"){
+           j= "1";
+         }else if(numeroDelito== "Comun"){
+           j= "2";
+         }else{
+           j= "3";
+         }  
+         
+         List<List<String>> array = new ArrayList<>();
+            try {
+       
+         List<StreamKeyItem> listItems = (List<StreamKeyItem>) commandManager.invoke(CommandElt.LISTSTREAMITEMS, "antecedentes");
+
+         
+         for(int i= 0; i<listItems.size(); i++){
+             List<String> lista= new ArrayList<>();
+            List<String> list = listItems.get(i).getKeys();
+            if(list.contains(j)){
+              String numero = list.get(0);
+              String nombre= getNombre(numero);  
+              LinkedTreeMap tree = (LinkedTreeMap) listItems.get(i).getData();
+                System.out.println(tree+ "  "+ i);
+              LinkedTreeMap tree2= (LinkedTreeMap) tree.get("json");
+              lista.add(nombre);
+              lista.add((String)tree2.get("delito"));
+              lista.add((String)tree2.get("descripcion"));  
+              array.add(lista); 
+            }
+          
+         }
+                System.out.println(array);
+                
+         } catch (MultichainException e) {
+            e.printStackTrace();
+            
+        }
+            return array;
+     
+     }
+     
+     public static List<List<String>> cargarAntecendetesPorIdentificacion (String numero){
+          List<List<String>> array = new ArrayList<>();
+            try {
+         String nombre= getNombre(numero);
+                
+         List<StreamKeyItem> listItems = (List<StreamKeyItem>) commandManager.invoke(CommandElt.LISTSTREAMITEMS, "antecedentes");
+       
+        
+         for(int i= 0; i<listItems.size(); i++){
+               List<String> lista= new ArrayList<>();
+            List<String> list = listItems.get(i).getKeys();
+            if(list.contains(numero)){
+              LinkedTreeMap tree = (LinkedTreeMap) listItems.get(i).getData();
+              LinkedTreeMap tree2= (LinkedTreeMap) tree.get("json");
+              lista.add(nombre);
+              lista.add((String)tree2.get("delito"));
+              lista.add((String)tree2.get("descripcion"));  
+              array.add(lista);
+            }
+          
+         }
+        
+         
+         } catch (MultichainException e) {
+            e.printStackTrace();
+            
+        }
+            return array;
+     }
+     
      public static List<String> cargarIndividuos(){
           List<String> list= new ArrayList<String>();
           try {
@@ -75,10 +169,10 @@ public class Main {
          mytree.put("descripcion", descripcion);
          LinkedTreeMap mytreeJson= new LinkedTreeMap();
          mytreeJson.put("json", mytree);
-        // List<String> list= new ArrayList<String>();
-        // list.add(key);
-        // list.add(i);
-         commandManager.invoke(CommandElt.PUBLISH, "antecedentes", key, i , mytreeJson);
+         List<String> list= new ArrayList<String>();
+         list.add(key);
+         list.add(i);
+         commandManager.invoke(CommandElt.PUBLISH, "antecedentes", list , mytreeJson);
           } catch (MultichainException e) {
             e.printStackTrace();
             
